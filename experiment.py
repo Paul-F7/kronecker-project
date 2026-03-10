@@ -1,6 +1,6 @@
 # Experiment,  Is  M=N enough?
 
-from math_help import _r_value, rho_box_numpy, rho_box_bruteforce, rho_box1_numpy, rho_box_lyness
+from math_help import rho_box_bruteforce, rho_box1_numpy
 import numpy as np
 import pandas as pd
 

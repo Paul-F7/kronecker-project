@@ -126,3 +126,66 @@ def rho_box_lyness(N: int, alpha: float):
         k1 += 1
         
     return best_rho, best_k, best_h
+
+def rho_3d_lyness(N: int, alpha: tuple):
+    """
+    Computes the 3D Zaremba index for an extensible sequence.
+    alpha: A tuple (alpha1, alpha2) representing the 3D generator vector.
+    """
+    a1, a2 = alpha
+    
+    # Initialize with a basic k1=1 guess to establish a starting bound
+    k1_init = 1
+    k2_init = round(a1)
+    k3_init = round(a2)
+    h1_init = N * (k2_init - a1 * k1_init)
+    h2_init = N * (k3_init - a2 * k1_init)
+    
+    # rho = k1 * max(1, |h1|) * max(1, |h2|)
+    best_rho = max(1.0, abs(h1_init)) * max(1.0, abs(h2_init)) * k1_init
+    best_k = (int(k1_init), int(k2_init), int(k3_init))
+
+    k1 = 1
+    # The search terminates when k1 itself exceeds the current best rho
+    while k1 < best_rho:
+        # For a fixed k1, we need to find k2 and k3 such that
+        # k1 * |N(k2 - a1*k1)| * |N(k3 - a2*k1)| < best_rho
+        
+        # Max allowable 'radius' for the product of the offsets
+        max_h_prod = best_rho / k1
+        
+        # Determine the range for k2 first
+        # Since |h2| is at least 1 (per Zaremba max(1, |h|)), 
+        # |h1| cannot exceed max_h_prod
+        radius1 = max_h_prod / (N)
+        
+        target1 = a1 * k1
+        min_k2 = math.ceil(target1 - radius1)
+        max_k2 = math.floor(target1 + radius1)
+        
+        for k2 in range(min_k2, max_k2 + 1):
+            h1 = N * (k2 - target1)
+            h1_factor = max(1.0, abs(h1))
+            
+            # Now determine the remaining budget for k3
+            radius2 = max_h_prod / (N * h1_factor)
+            
+            target2 = a2 * k1
+            min_k3 = math.ceil(target2 - radius2)
+            max_k3 = math.floor(target2 + radius2)
+            
+            for k3 in range(min_k3, max_k3 + 1):
+                h2 = N * (k3 - target2)
+                
+                # Final 3D Score Calculation
+                score = k1 * max(1.0, abs(h1)) * max(1.0, abs(h2))
+                
+                if score < best_rho:
+                    best_rho = score
+                    best_k = (k1, k2, k3)
+                    # Update max_h_prod dynamically to shrink search space
+                    max_h_prod = best_rho / k1 
+                    
+        k1 += 1
+        
+    return best_rho, best_k
