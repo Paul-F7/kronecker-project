@@ -485,6 +485,113 @@ def generate_optimized_g_vectors_5d(N):
 
 
 
+def rho_4d_lyness_corrected(N: int, alpha: tuple):
+    """
+    Correctly computes the 4D Zaremba index on the full dual lattice.
+    alpha: A tuple (a1, a2, a3) representing the 4D generator vector (excluding g1=1).
+    """
+    a1, a2, a3 = alpha
+    g2 = round(a1 * N)
+    g3 = round(a2 * N)
+    g4 = round(a3 * N)
+    
+    # The absolute mathematical ceiling is N (from vector h = (N, 0, 0, 0))
+    best_rho = float(N)
+    best_h = (N, 0, 0, 0)
+    
+    h2 = 0
+    while h2 <= best_rho:
+        h2_factor = max(1.0, abs(h2))
+        max_h3 = int(best_rho / h2_factor)
+        
+        # Symmetry break: If h2 is 0, start h3 at 0 to avoid checking negative mirrors
+        start_h3 = 0 if h2 == 0 else -max_h3
+        
+        for h3 in range(start_h3, max_h3 + 1):
+            h3_factor = max(1.0, abs(h3))
+            max_h4 = int(best_rho / (h2_factor * h3_factor))
+            
+            # Symmetry break: If both outer loops are 0, start at 1 (since h=0,0,0,0 is invalid)
+            start_h4 = 1 if (h2 == 0 and h3 == 0) else -max_h4
+            
+            for h4 in range(start_h4, max_h4 + 1):
+                
+                # 1. 4D Dual lattice condition
+                h1 = -(h2 * g2 + h3 * g3 + h4 * g4) % N
+                
+                # 2. Shift to centered representation (-N/2, N/2]
+                if h1 > N / 2:
+                    h1 -= N
+                    
+                h1_factor = max(1.0, abs(h1))
+                h4_factor = max(1.0, abs(h4))
+                
+                # 3. Zaremba score
+                score = h1_factor * h2_factor * h3_factor * h4_factor
+                
+                # 4. Update
+                if score < best_rho:
+                    best_rho = score
+                    best_h = (h1, h2, h3, h4)
+                    
+        h2 += 1
+        
+    return best_rho, best_h
 
 
 
+
+def rho_5d_lyness_corrected(N: int, alpha: tuple):
+    """
+    Correctly computes the 5D Zaremba index on the full dual lattice.
+    alpha: A tuple (a1, a2, a3, a4) representing the 5D generator vector.
+    """
+    a1, a2, a3, a4 = alpha
+    g2 = round(a1 * N)
+    g3 = round(a2 * N)
+    g4 = round(a3 * N)
+    g5 = round(a4 * N)
+    
+    best_rho = float(N)
+    best_h = (N, 0, 0, 0, 0)
+    
+    h2 = 0
+    while h2 <= best_rho:
+        h2_factor = max(1.0, abs(h2))
+        max_h3 = int(best_rho / h2_factor)
+        start_h3 = 0 if h2 == 0 else -max_h3
+        
+        for h3 in range(start_h3, max_h3 + 1):
+            h3_factor = max(1.0, abs(h3))
+            max_h4 = int(best_rho / (h2_factor * h3_factor))
+            start_h4 = 0 if (h2 == 0 and h3 == 0) else -max_h4
+            
+            for h4 in range(start_h4, max_h4 + 1):
+                h4_factor = max(1.0, abs(h4))
+                max_h5 = int(best_rho / (h2_factor * h3_factor * h4_factor))
+                
+                # Symmetry break for 5D
+                start_h5 = 1 if (h2 == 0 and h3 == 0 and h4 == 0) else -max_h5
+                
+                for h5 in range(start_h5, max_h5 + 1):
+                    
+                    # 1. 5D Dual lattice condition
+                    h1 = -(h2 * g2 + h3 * g3 + h4 * g4 + h5 * g5) % N
+                    
+                    if h1 > N / 2:
+                        h1 -= N
+                        
+                    h1_factor = max(1.0, abs(h1))
+                    h5_factor = max(1.0, abs(h5))
+                    
+                    # 2. Zaremba score
+                    score = h1_factor * h2_factor * h3_factor * h4_factor * h5_factor
+                    
+                    # 3. Update
+                    if score < best_rho:
+                        best_rho = score
+                        best_h = (h1, h2, h3, h4, h5)
+                        
+        h2 += 1
+        
+    return best_rho, best_h
