@@ -191,6 +191,56 @@ def rho_3d_lyness(N: int, alpha: tuple):
         
     return best_rho, best_k
 
+# Corrected version of previous one as appearently it wasnt correct as it wasnt searching over the entire 3d space
+def rho_3d_lyness_corrected(N: int, alpha: tuple):
+    """
+    Correctly computes the 3D Zaremba index on the full dual lattice.
+    alpha: A tuple (alpha1, alpha2) representing the 3D generator vector.
+    """
+    a1, a2 = alpha
+    # Safely recover integer g values to avoid floating point drift in modulo math
+    g2 = round(a1 * N)
+    g3 = round(a2 * N)
+    
+    # The absolute mathematical ceiling is N (from vector h = (N, 0, 0))
+    best_rho = float(N)
+    best_h = (N, 0, 0)
+    
+    h2 = 0
+    # The outer loop dynamically shrinks because best_rho updates
+    while h2 <= best_rho:
+        h2_factor = max(1.0, abs(h2))
+        
+        # Given h2, h3 is strictly bounded by the current best score
+        max_h3 = int(best_rho / h2_factor)
+        
+        # If h2 is 0, we only need to check positive h3 to avoid redundant negative pairs (symmetry)
+        start_h3 = 1 if h2 == 0 else -max_h3
+        
+        for h3 in range(start_h3, max_h3 + 1):
+            
+            # 1. True 3D Dual lattice condition: h1 = -(h2*g2 + h3*g3) mod N
+            h1 = -(h2 * g2 + h3 * g3) % N
+            
+            # 2. Shift h1 to the centered modulo representation: (-N/2, N/2]
+            if h1 > N / 2:
+                h1 -= N
+                
+            h1_factor = max(1.0, abs(h1))
+            
+            # 3. Calculate Zaremba score
+            score = h1_factor * h2_factor * max(1.0, abs(h3))
+            
+            # 4. Update best
+            if score < best_rho:
+                best_rho = score
+                best_h = (h1, h2, h3)
+                
+        h2 += 1
+        
+    return best_rho, best_h
+
+
 
 
 def generate_optimized_g_vectors_3d(N):
