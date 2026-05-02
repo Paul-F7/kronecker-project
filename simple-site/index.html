@@ -3,41 +3,301 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spreading Points Evenly — A Story About Numbers</title>
+<title>Spreading Points Evenly — Kronecker Sequences and Zaremba's Index</title>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [["\\(", "\\)"]],
+      displayMath: [["\\[", "\\]"]]
+    },
+    svg: {
+      fontCache: "global"
+    }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    font-family: Georgia, "Times New Roman", serif;
-    max-width: 720px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 2.5rem 1rem;
+    background: #f7f4ed;
+    color: #24211d;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
-    color: #222;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  h1 { font-size: 2rem; margin-bottom: 0.2rem; }
-  h2 { margin-top: 2.5rem; }
-  h3 { margin-top: 1.8rem; }
-  .sub { color: #666; font-style: italic; margin-top: 0; }
-  code, pre { font-family: Menlo, Consolas, monospace; font-size: 0.95em; }
-  pre { background: #f4f4f0; padding: 0.8rem; overflow-x: auto; }
+
+  a {
+    color: #2f5d50;
+    text-decoration-color: rgba(47, 93, 80, 0.35);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+  }
+
+  a:hover,
+  a:focus {
+    color: #1f3f36;
+    text-decoration-color: currentColor;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  pre,
+  figure,
+  blockquote,
+  ul {
+    margin: 0;
+  }
+
+  .site-header {
+    position: relative;
+    padding-right: 2.75rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #d8d0c0;
+  }
+
+  h1 {
+    margin-bottom: 0.5rem;
+    color: #171512;
+    font-size: 2rem;
+    line-height: 2.25rem;
+    font-weight: 750;
+    letter-spacing: 0;
+  }
+
+  h2 {
+    margin-top: 2.35rem;
+    margin-bottom: 0.75rem;
+    color: #171512;
+    font-size: 1.05rem;
+    line-height: 1.5rem;
+    font-weight: 750;
+    letter-spacing: 0;
+  }
+
+  h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  p {
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .sub {
+    margin-bottom: 0;
+    max-width: 39rem;
+    color: #575044;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    font-style: normal;
+  }
+
+  .project-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    color: #6a6255;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+  }
+
+  .waterloo-crest {
+    display: block;
+    width: 1.05rem;
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  .repo-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    position: absolute;
+    top: 0;
+    right: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #c9c0ae;
+    border-radius: 0.25rem;
+    background: #fffdf8;
+    color: #1f1b16;
+    text-decoration: none;
+    box-shadow: 0 1px 1px rgba(23, 21, 18, 0.04);
+  }
+
+  .repo-button svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+  }
+
+  .repo-button:hover,
+  .repo-button:focus {
+    background: #1f1b16;
+    border-color: #1f1b16;
+    color: #fffdf8;
+  }
+
+  .advisor-link {
+    color: #3b6258;
+    font-weight: 700;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  ul {
+    margin: 0 0 0.75rem 1rem;
+    padding: 0;
+    color: #2b2824;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    list-style: disc;
+  }
+
+  li + li {
+    margin-top: 0.125rem;
+  }
+
+  code,
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  pre {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    border-radius: 0.25rem;
+    background: #ebe5d8;
+    color: #24211d;
+  }
+
+  .math-block {
+    margin: 0 0 0.75rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    border-radius: 0.25rem;
+    border-left: 3px solid #7d988c;
+    background: #ede8dc;
+    color: #171512;
+    font-size: 0.875rem;
+  }
+
+  .math-block mjx-container[display="true"] {
+    margin: 0;
+  }
+
   blockquote {
-    border-left: 3px solid #999;
-    margin: 1rem 0;
-    padding: 0.2rem 0 0.2rem 1rem;
-    color: #444;
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+    border: 1px solid #d1c7b5;
+    border-radius: 0.25rem;
+    background: #fffdf8;
+    color: #575044;
+    font-size: 0.75rem;
+    line-height: 1.35rem;
   }
-  hr { border: 0; border-top: 1px solid #ddd; margin: 2.5rem 0; }
-  footer { color: #888; font-size: 0.9rem; margin-top: 3rem; }
-  figure { margin: 1.8rem 0; }
-  figure img { width: 100%; height: auto; display: block; border: 1px solid #e6e6df; background: #fdfdfa; }
-  figcaption { color: #666; font-size: 0.9rem; font-style: italic; margin-top: 0.5rem; text-align: center; }
+
+  hr {
+    margin: 2.25rem 0;
+    border: 0;
+    border-top: 1px solid #d8d0c0;
+  }
+
+  figure {
+    margin: 1.75rem 0 1rem;
+  }
+
+  figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-bottom: 0.5rem;
+    border: 1px solid #d1c7b5;
+    border-radius: 0.375rem;
+    background: #fffdf8;
+    box-shadow: 0 10px 28px rgba(38, 34, 29, 0.08);
+  }
+
+  figcaption {
+    color: #6a6255;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    font-style: italic;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #d8d0c0;
+    color: #6a6255;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    body {
+      padding: 4rem 1.5rem;
+    }
+
+    h1 {
+      font-size: 2.55rem;
+      line-height: 2.9rem;
+    }
+
+    h2 {
+      margin-top: 2.5rem;
+      font-size: 1.15rem;
+      line-height: 1.75rem;
+    }
+
+    .sub {
+      font-size: 1.03rem;
+    }
+  }
 </style>
 </head>
 <body>
 
-<h1>Spreading Points Evenly</h1>
-<p class="sub">A research walkthrough about turning irrational numbers into high-dimensional point sets that avoid clumps, gaps, and hidden bias.</p>
-
-<hr>
+<header class="site-header">
+  <a class="repo-button" href="https://github.com/Paul-F7/kronecker-project" aria-label="View GitHub repository" title="View GitHub repository">
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M8 0C3.58 0 0 3.67 0 8.2c0 3.62 2.29 6.69 5.47 7.78.4.08.55-.18.55-.4 0-.2-.01-.86-.01-1.56-2.01.38-2.53-.5-2.69-.96-.09-.24-.48-.96-.82-1.15-.28-.16-.68-.55-.01-.56.63-.01 1.08.59 1.23.84.72 1.24 1.87.89 2.33.68.07-.53.28-.89.51-1.1-1.78-.21-3.64-.91-3.64-4.04 0-.89.31-1.63.82-2.2-.08-.21-.36-1.04.08-2.17 0 0 .67-.22 2.2.84.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.06 2.2-.84 2.2-.84.44 1.13.16 1.96.08 2.17.51.57.82 1.3.82 2.2 0 3.14-1.87 3.83-3.65 4.04.29.25.54.75.54 1.52 0 1.1-.01 1.98-.01 2.25 0 .22.15.48.55.4A8.09 8.09 0 0 0 16 8.2C16 3.67 12.42 0 8 0Z"/>
+    </svg>
+  </a>
+  <h1>Spreading Points Evenly</h1>
+  <p class="sub">A research walkthrough about Kronecker sequences, Diophantine approximation, rank-1 lattices, and the Zaremba index — with the math kept readable.</p>
+  <p class="project-meta">
+    <img class="waterloo-crest" src="https://upload.wikimedia.org/wikipedia/commons/4/47/Waterloo_crest.png" alt="">
+    <span>Research project under <a class="advisor-link" href="https://www.math.uwaterloo.ca/~clemieux/">Prof. Christiane Lemieux</a>.</span>
+  </p>
+</header>
 
 <h2>The Question</h2>
 <p>How do you scatter dots in a box as evenly as possible?</p>
@@ -46,115 +306,210 @@
 
 <p>This is not a toy puzzle. Whenever a computer estimates the area under a curve, simulates a physical system, prices an option, or renders light bouncing in a video game, it secretly relies on a cloud of well-spread points. The more evenly the points cover the space, the more accurate the answer. So the question becomes: <strong>what is the best recipe for spreading points?</strong></p>
 
-<p>Random points look scattered, but look closely and you'll find clumps and gaps. Random isn't even — random is <em>random</em>. A 200-year-old idea called a <strong>Kronecker sequence</strong> uses a very simple recipe to fill a square with almost eerie regularity. My research is about understanding <em>why</em>, <em>how well</em>, and <em>how to make it work in higher dimensions</em>.</p>
+<p>Random points look scattered, but look closely and you'll find clumps and gaps. Random isn't even — random is <em>random</em>. A 200-year-old idea behind <strong>Kronecker sequences</strong> uses a very simple recipe to fill a square with almost eerie regularity. This sits inside the modern theory of <strong>quasi-Monte Carlo</strong>: deterministic point sets designed to beat ordinary Monte Carlo by reducing discrepancy.</p>
+<p>My project studies this through the language of <strong>lattice rules</strong>. The central question is not just "do the points look nice?" but: <strong>which integer frequency vectors can the point set accidentally align with?</strong> Those bad alignments are measured by the Zaremba index.</p>
 
 <figure>
-  <img src="plot_scatter.png" alt="Side-by-side scatter plots: a Kronecker sequence using the golden ratio and √2 spreads 300 points evenly across the unit square, while 300 uniformly random points show visible clumps and gaps.">
-  <figcaption>The same 300 points, two ways. Left: a Kronecker sequence with α = (φ−1, √2−1). Right: uniform random. Random has visible clumps and bare patches — the Kronecker grid does not.</figcaption>
+  <img src="plot_scatter.png" alt="Side-by-side scatter plots: a Kronecker sequence using the golden ratio and square root of 2 spreads 300 points evenly across the unit square, while 300 uniformly random points show visible clumps and gaps.">
+  <figcaption>The same 300 points, two ways. Left: a Kronecker sequence with \(\alpha = (\varphi - 1,\sqrt{2}-1)\). Right: uniform random. Random has visible clumps and bare patches — the Kronecker grid does not.</figcaption>
 </figure>
 
 <h2>The Three Key Ideas</h2>
 
 <h3>1. The recipe: pick an irrational number</h3>
-<p>To make a Kronecker sequence in 1D, you pick an irrational number — call it α — and your <em>n</em>th point is just the fractional part of <em>n</em>·α. So if α = 0.618… (the golden ratio minus one), the points are at 0.618, 0.236, 0.854, 0.472, 0.090, 0.708, … and so on. They march around the unit interval, never repeating, never landing on top of each other, gradually filling every gap.</p>
-<p>For higher dimensions you pick a vector of irrationals (α₁, α₂, …, α_d). Each coordinate gets its own irrational. Same recipe, more dimensions.</p>
+<p>To make a Kronecker sequence in 1D, pick an irrational number \(\alpha\) and take fractional parts:</p>
+<div class="math-block">\[
+x_n = \{n\alpha\}, \qquad n = 0,1,2,\ldots
+\]</div>
+<p>So if \(\alpha = 0.618\ldots\) (the golden ratio minus one), the points are at 0.618, 0.236, 0.854, 0.472, 0.090, 0.708, … and so on. They march around the unit interval, never repeating, never landing on top of each other, gradually filling every gap.</p>
+<p>For the lattice-rule version used in the computations, the actual point set is</p>
+<div class="math-block">\[
+P_N(\alpha) =
+\left\{\left(\frac{n}{N},\{n\alpha_1\},\ldots,\{n\alpha_{d-1}\}\right)
+: n = 0,\ldots,N-1\right\}.
+\]</div>
+<p>This is a <strong>Kronecker lattice</strong>. If we replace each irrational \(\alpha_j\) by an integer generator \(g_j/N\), it becomes the classical <strong>rank-1 lattice rule</strong> studied by Korobov, Hlawka, Niederreiter, Sloan, Joe, and Zaremba.</p>
 
 <h3>2. Some irrationals are "more irrational" than others</h3>
-<p>This sounds odd. Aren't all irrational numbers equally irrational? Mathematically: no. The <em>golden ratio</em> is, in a precise sense, the hardest irrational to approximate by fractions. It is the most stubborn. And that stubbornness is exactly what makes its Kronecker sequence beautifully spread.</p>
-<p>Numbers like e and π are also irrational, but they have <em>occasional good rational approximations</em> (this is why π ≈ 22/7 is famous). Those good approximations cause the Kronecker sequence to briefly clump, then escape, then clump again. Stubborn irrationals don't clump.</p>
+<p>This sounds odd. Aren't all irrational numbers equally irrational? Mathematically: no. The right language is <strong>Diophantine approximation</strong>. A number \(\alpha\) is called <strong>badly approximable</strong> if there is a constant \(c(\alpha) &gt; 0\) such that</p>
+<div class="math-block">\[
+q\,\|q\alpha\| \ge c(\alpha)
+\qquad \text{for every integer } q \ge 1.
+\]</div>
+<p>Here \(\|x\|\) means distance from \(x\) to the nearest integer. This says: no denominator \(q\) gives an unusually good rational approximation \(p/q \approx \alpha\).</p>
+<p>Continued fractions make this visible. The golden ratio has continued fraction \([1;1,1,1,\ldots]\), so its partial quotients are as small as possible. \(\sqrt{2}\) has \([1;2,2,2,\ldots]\). Both are badly approximable. Numbers like \(e\) and \(\pi\) are irrational too, but they have occasional strong rational approximations; \(\pi \approx 22/7\) is the famous small example. Those approximations create temporary lattice alignments, and the Zaremba index detects them.</p>
 
-<h3>3. We need a score: the Zaremba index ρ</h3>
-<p>Eyeballing evenness doesn't scale. We need a number. The number mathematicians have agreed on is called the <strong>Zaremba index</strong>, written ρ:</p>
+<h3>3. We need a score: the Zaremba index \(\rho\)</h3>
+<p>Eyeballing evenness doesn't scale. We need a number. The number I used is the <strong>Zaremba index</strong>, written \(\rho\). For a rank-1 lattice with generator \(g = (1,g_1,\ldots,g_{d-1})\) modulo \(N\), define the dual lattice</p>
+<div class="math-block">\[
+P^\perp(g,N)
+= \{h \in \mathbb{Z}^d : h \cdot g \equiv 0 \pmod N\}.
+\]</div>
+<p>The bad vectors are the nonzero \(h\) in this dual lattice. Each \(h\) represents an integer-frequency wave that is invisible to the point set. The score is</p>
+<div class="math-block">\[
+\rho_d(N,g)
+= \min_{\substack{h \in P^\perp(g,N)\\ h \ne 0}}
+\prod_{j=1}^{d} \max(1,|h_j|).
+\]</div>
+<p>Large \(\rho\) means the first invisible wave has high hyperbolic frequency, so the lattice avoids simple alignments.</p>
 <ul>
-  <li><strong>ρ near 1</strong> — terrible. The points are basically aligned on a thin line.</li>
-  <li><strong>ρ growing with N</strong> — good. The more points you add, the more evenly they spread.</li>
-  <li><strong>ρ ≈ N</strong> — excellent. As good as theoretically possible.</li>
+  <li><strong>\(\rho\) near 1</strong> — terrible. The points are basically aligned on a thin line.</li>
+  <li><strong>\(\rho\) growing with \(N\)</strong> — good. The more points you add, the more evenly they spread.</li>
+  <li><strong>\(\rho \approx N\)</strong> — excellent. As good as theoretically possible.</li>
 </ul>
 
-<p>Formally:</p>
-<pre>ρ(α, N) = min over nonzero g of (|g₁| · |g₂| · … · |g_d|)
-          such that g · (Nα) ≡ 0 (mod N)</pre>
-
-<p>So the entire research project comes down to one question: <strong>given a dimension d and a number of points N, which generators α make ρ as big as possible — and how big can ρ even get?</strong></p>
+<p>So the entire research project comes down to one question: <strong>given a dimension \(d\) and a number of points \(N\), which generators \(\alpha\) make \(\rho\) as big as possible — and how big can \(\rho\) even get?</strong></p>
 
 <hr>
 
+<h2>How I Designed the Code</h2>
+<p>The codebase was built in layers instead of starting with the fastest version. That was deliberate. The main risk in this project was not just speed; it was accidentally optimizing the wrong mathematical object. So I first wrote slow, obvious versions whose only job was correctness, then used those as test oracles for the faster versions.</p>
+
+<h3>1. Start with a brute-force reference</h3>
+<p>The first implementation in <code>math_help.py</code> enumerates candidate integer vectors directly and computes the product score \(r(h)\). It is too slow for serious experiments, but it is transparent: for small \(N\) and small search radius \(M\), there is almost no algorithmic cleverness hiding a bug.</p>
+<p>This reference implementation answered the basic question: "When the fast code says the minimum is this vector, can I independently verify that no smaller vector exists?" That mattered because a wrong \(\rho\) value can look plausible in a plot. The brute-force version gave me a ground truth for small cases.</p>
+
+<h3>2. Use number theory to remove useless search</h3>
+<p>The next design decision was to avoid searching all pairs \((k_1,k_2)\) when only a few can possibly matter. In 2D, for each fixed \(k_1\), the best \(k_2\) must be close to \(\alpha k_1\). So instead of checking every \(k_2\), the NumPy version computes</p>
+<div class="math-block">\[
+k_2 \approx \operatorname{round}(\alpha k_1)
+\]</div>
+<p>and only tests a tiny window around that nearest integer. This turns a square search into a near-linear one. The reason this is valid is geometric: if \(k_2\) is far from \(\alpha k_1\), then \(N|k_2-\alpha k_1|\) is already too large to beat the current best product.</p>
+
+<h3>3. Keep exactness while pruning</h3>
+<p>For higher dimensions, nearest-integer tricks alone are not enough. I moved to a branch-and-bound design: keep the best \(\rho\) found so far, then stop exploring a branch as soon as its partial product already exceeds that value. The key invariant is simple:</p>
+<div class="math-block">\[
+\prod_{j=1}^{m}\max(1,|h_j|) \ge \rho_{\text{best}}
+\quad\Longrightarrow\quad
+\text{no completion of this branch can improve the answer.}
+\]</div>
+<p>This is the main design principle behind the faster 3D, 4D, and 5D code. It is still an exact search; it just refuses to spend time on branches that are mathematically impossible winners.</p>
+
+<h3>4. Separate experiments from kernels</h3>
+<p>The notebooks handle exploration, plots, and interpretation. The reusable kernels live in files like <code>math_help.py</code>, <code>fast_comp.py</code>, and <code>fast_comp_C.c</code>. I made that split because the project had two different modes of work: interactive research, where I wanted to try ideas quickly, and production-style computation, where I needed repeatable runs over millions of generators.</p>
+<p>That separation also made it easier to compare implementations. If Python, NumPy, Numba, and C all agree on the same small cases, then the faster code has earned trust before being used on large datasets.</p>
+
 <h2>Phase 1 — Building the calculator</h2>
-<p>Before you can study a thing, you must measure it. There are three different algorithms in the published literature, each from a different paper. I implemented all three and tested them on numbers I trusted: the golden ratio, √2, e. They all agreed. Foundation established.</p>
-<p>Along the way I noticed the algorithms have a search bound called M, conventionally set to N. In practice, almost every interesting generator gets the right answer with M = N/4 — a 4× speedup that compounded across billions of later computations.</p>
+<p>Before you can study a thing, you must measure it. I implemented the Zaremba-index search three ways: a brute-force dual-lattice enumeration, a vectorized nearest-integer search, and the branch-and-bound style used by <strong>Lyness and Sørevik, "A search program for finding optimal integration lattices" (1991)</strong>. I checked all three against trusted test cases: the golden ratio, \(\sqrt{2}\), \(e\), and small \(N\) where brute force is still exact.</p>
+<p>The computation is a shortest-vector problem, but not in the Euclidean norm. It minimizes the hyperbolic product</p>
+<div class="math-block">\[
+r(h) = \prod_{j=1}^{d} \max(1,|h_j|),
+\]</div>
+<p>which is why standard lattice intuition only partly applies. Along the way I noticed the algorithms have a search bound \(M\), conventionally set to \(N\). In practice, almost every interesting generator gets the right answer with \(M = N/4\) — a 4× speedup that compounded across billions of later computations.</p>
+<p>The important engineering decision was to keep the return value richer than just \(\rho\). The functions also return the minimizing integer vector, the corresponding dual vector, or both. That made debugging possible: when a plot jumped, I could ask whether the jump came from the value of \(\rho\) itself or from a new worst vector taking over.</p>
+<p>I also treated every speedup as suspicious until it matched the slow version. The workflow was:</p>
+<ul>
+  <li>Run brute force on small \(N\), where exhaustive checking is feasible.</li>
+  <li>Run the optimized algorithm on the same inputs.</li>
+  <li>Compare both the numerical \(\rho\) value and the minimizing vector.</li>
+  <li>Only then use the optimized version on larger experiments.</li>
+</ul>
+<p>This gave the project a testing ladder: slow and obvious for truth, fast and specialized for scale.</p>
 
 <h2>Phase 2 — One Dimension</h2>
-<p>I ran ρ for N from 1 to 1000, with several famous α values:</p>
+<p>I ran \(\rho\) for \(N\) from 1 to 1000, with several famous \(\alpha\) values. Technically this is the 2D lattice generated by \((n/N,\{n\alpha\})\), but there is only one irrational parameter, so it is the cleanest place to see the number theory.</p>
 <ul>
-  <li><strong>Golden ratio:</strong> ρ grew in a clean straight line with N. Perfect.</li>
-  <li><strong>√2:</strong> also a clean straight line. Just as good.</li>
-  <li><strong>e:</strong> chaotic. ρ would jump up, fall back, jump again.</li>
-  <li><strong>π:</strong> same chaos as e.</li>
+  <li><strong>Golden ratio:</strong> \(\rho\) grew in a clean straight line with \(N\), matching the continued-fraction story.</li>
+  <li><strong>\(\sqrt{2}\):</strong> also a clean straight line, because its partial quotients are bounded.</li>
+  <li><strong>\(e\):</strong> less stable. Its continued fraction \([2;1,2,1,1,4,1,\ldots]\) contains growing terms.</li>
+  <li><strong>\(\pi\):</strong> irregular. The approximation \(22/7\) creates a visible low-\(\rho\) plateau.</li>
 </ul>
-<blockquote>Inside the calculator, ρ is the smallest member of a special list called the worst vectors. For the golden ratio, that worst vector locks at (1, 1) and never changes. For e and π, it jumps around, which is exactly why ρ jumps.</blockquote>
+<blockquote>Inside the calculator, \(\rho\) is the smallest product \(r(h)\) among the dual vectors \(h\). For the golden ratio, the worst vector is governed by the Fibonacci convergents. For \(e\) and \(\pi\), the minimizing vector jumps around, which is exactly why \(\rho\) jumps.</blockquote>
 
 <figure>
-  <img src="plot_rho_vs_n.png" alt="Line plot of the Zaremba index ρ versus N for four irrationals: the golden ratio and √2 grow as straight clean lines, e shows breaks and a long plateau, and π stays low and flat because of its strong rational approximation 22/7.">
-  <figcaption>ρ as a function of N for four α values, computed exactly. The golden ratio and √2 climb in clean straight lines. e plateaus and jumps. π stays small for a long time — that is 22/7 doing damage.</figcaption>
+  <img src="plot_rho_vs_n.png" alt="Line plot of the Zaremba index versus the number of points for four irrationals: the golden ratio and square root of 2 grow as straight clean lines, e shows breaks and a long plateau, and pi stays low and flat because of its strong rational approximation 22 over 7.">
+  <figcaption>\(\rho\) as a function of \(N\) for four \(\alpha\) values, computed exactly. The golden ratio and \(\sqrt{2}\) climb in clean straight lines. \(e\) plateaus and jumps. \(\pi\) stays small for a long time — that is \(22/7\) doing damage.</figcaption>
 </figure>
 
 <h3>Fibonacci resonance</h3>
-<p>When N happens to be a Fibonacci number (1, 2, 3, 5, 8, 13, 21, 34, …) the golden ratio's ρ exhibits a phase transition — a sudden jump. And the worst vector at those N values? Often itself a Fibonacci number. The Fibonacci sequence haunts the golden ratio's behavior at every level. This is unique to the golden ratio and its quadratic-irrational cousins; transcendentals like π don't have this fingerprint.</p>
+<p>When \(N\) happens to be a Fibonacci number \((1,2,3,5,8,13,21,34,\ldots)\), the golden ratio's \(\rho\) exhibits a phase transition — a sudden jump. This is not numerology. The convergents of \(\varphi\) are ratios of Fibonacci numbers, and continued-fraction convergents are exactly the fractions that control \(\|q\alpha\|\).</p>
+<p>That connects the experiment to classical results on low-discrepancy Kronecker sequences: bounded continued-fraction coefficients imply good distribution. In a modern formulation, Takashi Goda's 2024 note proves that the one-dimensional Kronecker sequence is quasi-uniform exactly when \(\alpha\) is badly approximable, using the three-gap theorem.</p>
 
 <h2>Phase 3 — Going Higher</h2>
-<p>The golden ratio's higher-dimensional cousin is called the <strong>Plastic Number</strong> (ψ ≈ 1.3247…). It has the same "most irrational" property in 3D that the golden ratio has in 1D. I used it to build 3D, 4D, and 5D Kronecker sequences and measure them.</p>
-<p>I also tested a famous theorem. Dick and Zaremba proved that for <em>any</em> generator in d dimensions:</p>
-<pre>ρ ≥ c · N / (log N)^(d−1)</pre>
-<p>I ran tens of thousands of random 3D generators and counted how many actually <em>hit</em> this bound.</p>
-<blockquote>99.98% of generators easily exceed the bound. It's mathematically true, but useless as a quality filter — almost everything passes.</blockquote>
+<p>The golden ratio's higher-dimensional cousin is often taken to be the <strong>Plastic Number</strong> \(\psi \approx 1.3247\ldots\), the real root of</p>
+<div class="math-block">\[
+\psi^3 = \psi + 1.
+\]</div>
+<p>It gives a natural "noble" generator through powers such as \((\psi^{-1},\psi^{-2},\psi^{-3},\ldots)\). I used these algebraic generators to build 3D, 4D, and 5D Kronecker sequences and compare them with large random samples of rank-1 generators.</p>
+<p>I also tested the classical existence theorem behind the subject. Zaremba proved that for every \(d\) and \(N\) there exists a rank-1 generator with</p>
+<div class="math-block">\[
+\rho_d(N,g) \ge C_d\,\frac{N}{(\log N)^{d-1}}.
+\]</div>
+<p>The later paper <strong>Dick, Pillichshammer, Suzuki, Ullrich, and Yoshiki, "Lattice-based integration algorithms: Kronecker sequences and rank-1 lattices" (2018)</strong> uses this kind of Zaremba-index bound to control worst-case integration error in smooth function spaces.</p>
+<p>I ran tens of thousands of random 3D generators and counted how many actually exceeded this scale.</p>
+<blockquote>99.98% of sampled generators easily exceeded the \(N/(\log N)^2\) scale. The bound is mathematically important as an existence guarantee, but too weak to separate good generators from excellent ones.</blockquote>
 
 <h2>Phase 4 — The Landscape</h2>
-<p>For each N from 23 to 1601, I computed ρ for thousands of 3D generators and looked at the full distribution. Three findings:</p>
+<p>For each \(N\) from 23 to 1601, I computed \(\rho\) for thousands of 3D generators and looked at the full distribution. Three findings:</p>
 <ul>
-  <li><strong>The median is a clean curve.</strong> The middle-of-the-pack generator scores ρ ≈ 0.756 · N / (log N)². That coefficient 0.756 is remarkably stable.</li>
+  <li><strong>The median is a clean curve.</strong> The middle-of-the-pack generator scores \(\rho \approx 0.756\,N/(\log N)^2\). That coefficient \(0.756\) is empirical, but remarkably stable over the tested \(N\) range.</li>
   <li><strong>The worst case is always 1.</strong> Degenerate generators (like (1, 1, 1)) always exist. You can't just pick a random generator and pray.</li>
-  <li><strong>The best case grows much faster than the median</strong>, and the gap widens with N. Finding a top-quality generator becomes statistically rarer as you scale up. You have to <em>search</em>.</li>
+  <li><strong>The best case grows much faster than the median</strong>, and the gap widens with \(N\). Finding a top-quality generator becomes statistically rarer as you scale up. You have to <em>search</em>.</li>
 </ul>
+<p>Here I also made a data-design choice: store full distributions, not just the best generator. The best value is exciting, but it hides the shape of the search problem. A distribution tells you whether good generators are common, rare, or almost nonexistent. That is why the code records \(\rho\) values with weights and percentiles, then plots the histogram on a log scale.</p>
+<p>I used symmetry reduction whenever possible. Many generators are equivalent under coordinate permutations, so enumerating every raw tuple wastes time and overcounts the same mathematical behavior. I also filter out generator coordinates that are not coprime to \(N\), because those coordinates create degenerate lattice structure. For example, in 4D I can restrict to ordered generator tuples such as</p>
+<div class="math-block">\[
+g_2 \le g_3 \le g_4
+\]</div>
+<p>and then attach the correct permutation multiplicity as a weight. This keeps the distribution honest while avoiding repeated computation.</p>
 
 <figure>
-  <img src="plot_distribution.png" alt="Histogram on a log scale showing the distribution of Zaremba indices ρ across all 4D generators at N=1009. The bulk of generators sit at low ρ around the median of 6, the count drops by orders of magnitude through the 99.9th percentile at ρ=18, and only a handful of generators reach the best ρ of 26.">
-  <figcaption>Every 4D generator at N = 1009, scored. The y-axis is logarithmic — the rightmost bar (the best generators) is millions of times rarer than the median. This is why you cannot pick a generator at random and hope.</figcaption>
+  <img src="plot_distribution.png" alt="Histogram on a log scale showing the distribution of Zaremba indices across all 4D generators at N equals 1009. The bulk of generators sit around the median of 6, the count drops by orders of magnitude through the 99.9th percentile at 18, and only a handful of generators reach the best value of 26.">
+  <figcaption>Every 4D generator at \(N = 1009\), scored. The y-axis is logarithmic — the rightmost bar (the best generators) is millions of times rarer than the median. This is why you cannot pick a generator at random and hope.</figcaption>
 </figure>
 
 <h2>Phase 5 — Pushing into 4D and 5D</h2>
-<p>Python could handle 3D up to N ≈ 1600. For higher dimensions I needed new machinery. The work to compute ρ grows roughly as N^d. At 5D and N = 1000, that's a quadrillion operations per generator times tens of thousands of generators. So I rebuilt the core in three steps:</p>
+<p>Python could handle 3D up to \(N \approx 1600\). For higher dimensions I needed new machinery. The work to compute \(\rho\) grows roughly as \(N^d\). At 5D and \(N = 1000\), that's a quadrillion operations per generator times tens of thousands of generators. So I rebuilt the core in three steps:</p>
 
 <h3>1. Numba JIT for 4D</h3>
-<p>Numba compiles Python to native machine code at runtime. With a careful branch-and-bound search, the 4D inner loop ran ~200× faster than vanilla Python. N up to 2000 became reachable.</p>
+<p>Numba compiles Python to native machine code at runtime. With a careful branch-and-bound search, the 4D inner loop ran ~200× faster than vanilla Python. \(N\) up to 2000 became reachable.</p>
+<p>The main Numba design decision was to avoid Python objects inside the hot loop. Lists, dictionaries, dynamic tuples, and Python-level recursion are convenient, but they prevent the compiler from producing tight machine code. So the 4D kernel uses fixed-size numeric arrays, explicit loops, and simple integer arithmetic wherever possible.</p>
+<p>The kernel also starts with cheap special cases. First it checks whether \(\rho = 1\), because that is the worst possible score and can be detected from very small coordinate patterns. Then it computes simple one-coordinate bounds before entering the full nested search. These early exits are not just micro-optimizations; they shrink the initial search box for many bad or mediocre generators.</p>
+<p>I also moved expensive work out of the inner loop. Generator construction, symmetry bookkeeping, plotting, and file output happen outside the kernel. The kernel has one job: given \(N\) and a generator, return the exact \(\rho\). That made performance easier to reason about and made bugs easier to isolate.</p>
 
 <h3>2. Lattice reduction (LLL) to prune the search</h3>
-<p>Before searching, I run LLL to find a "nicer" basis for the lattice — one where short vectors are easy to find. With a better basis, branch-and-bound prunes far more aggressively. A free preprocessing step that makes everything downstream faster.</p>
+<p>Before searching, I run the <strong>Lenstra-Lenstra-Lovász lattice basis reduction algorithm</strong> (LLL, 1982) to find a "nicer" basis for the dual lattice — one where short candidate vectors appear earlier. LLL does not solve the Zaremba-index problem by itself, because \(\rho\) uses a product norm rather than Euclidean length. But it makes branch-and-bound pruning much sharper.</p>
+<p>The reason for using LLL is practical: branch-and-bound is only powerful after it has a good upper bound. If the first candidate is terrible, the search box stays huge. LLL tends to reveal short dual vectors early, giving the algorithm a small initial \(\rho_{\text{best}}\). Once that happens, most later branches fail the product bound quickly.</p>
+<p>I kept LLL as preprocessing rather than making it the whole solver because it optimizes a different norm. Euclidean shortness and Zaremba shortness are related, but not identical. A vector can be short in Euclidean length while still having a large coordinate product, and vice versa. So LLL is used as a guide, not as a replacement for exact enumeration.</p>
 
 <h3>3. C with OpenMP for 5D</h3>
-<p>For 5D even Numba wasn't enough. I rewrote the kernel in C, parallelized across all CPU cores with OpenMP, and used streaming I/O so memory stays bounded. The biggest 5D dataset (N = 1009) is 18 GB.</p>
+<p>For 5D even Numba wasn't enough. I rewrote the kernel in C, parallelized across all CPU cores with OpenMP, and used streaming I/O so memory stays bounded. The search is still exact: every candidate dual vector inside the active branch-and-bound region is considered, and the current best \(\rho\) shrinks the remaining box. The biggest 5D dataset (\(N = 1009\)) is 18 GB.</p>
+<p>C was the right tool at this stage because the bottleneck had become extremely low-level: nested loops, integer modular arithmetic, branch pruning, and writing a large number of records. I did not need new abstractions; I needed predictable memory layout and control over every loop.</p>
+<p>OpenMP parallelization was natural because different generators can be scored independently. That means the computation is embarrassingly parallel: one thread's generator does not affect another thread's result. The only shared concerns are progress reporting and output, so I designed the 5D run around chunked work and streaming writes instead of trying to keep the whole dataset in memory.</p>
+<p>The output format was another design decision. In the 4D Python pipeline, I save compressed <code>.npz</code> arrays containing both <code>rhos</code> and <code>weights</code>, because that format loads directly into NumPy for percentiles and plotting. In the 5D C pipeline, I stream results to CSV so the run never needs to hold the full dataset in memory. That choice favors robustness during the expensive computation; later analysis can convert or compress the output if needed.</p>
 
 <ul>
-  <li>4D distribution data up to N = 2003.</li>
-  <li>5D distribution data up to N = 1009 — to my knowledge, the largest dataset of its kind.</li>
-  <li>The N / (log N)^(d−1) median pattern continues to hold in higher dimensions.</li>
+  <li>4D distribution data up to \(N = 2003\).</li>
+  <li>5D distribution data up to \(N = 1009\) — to my knowledge, the largest dataset of its kind.</li>
+  <li>The \(N/(\log N)^{d-1}\) median pattern continues to hold in higher dimensions.</li>
 </ul>
 
 <hr>
 
 <h2>Why this matters</h2>
-<p>Quasi-Monte Carlo sequences power a remarkable amount of modern computation: physics simulations, financial Monte Carlo, light transport in 3D rendering, machine-learning sample generation. Every one of those applications quietly depends on a generator whose ρ is large. If you don't know your ρ, you don't know how accurate your simulation can ever be.</p>
+<p>Quasi-Monte Carlo sequences power a remarkable amount of modern computation: physics simulations, financial Monte Carlo, light transport in 3D rendering, machine-learning sample generation. In the Koksma-Hlawka picture, integration error is controlled by discrepancy; in lattice-rule theory, discrepancy and worst-case error are controlled by the dual lattice. The Zaremba index is one compact way to ask: <strong>how early does the dual lattice contain a dangerous low-frequency vector?</strong></p>
 
 <p>What did this research add?</p>
 <ul>
   <li><strong>Confirmed</strong> that the classical "noble" irrationals (golden ratio, Plastic Number) really are exceptional, and identified the Fibonacci-resonance fingerprint that explains why.</li>
-  <li><strong>Demystified</strong> the celebrated Dick–Zaremba lower bound: it's true but trivially satisfied by 99.98% of generators.</li>
-  <li><strong>Mapped</strong> the typical-quality landscape in 3D — median ≈ 0.756 · N / (log N)² — turning vague intuition into a concrete formula.</li>
+  <li><strong>Demystified</strong> the Zaremba-scale lower bound: it is true and important, but trivially satisfied by 99.98% of sampled generators.</li>
+  <li><strong>Mapped</strong> the typical-quality landscape in 3D — median \(\approx 0.756\,N/(\log N)^2\) — turning vague intuition into a concrete formula.</li>
   <li><strong>Pushed</strong> the computational frontier into 5D, generating the first large-scale distribution data at that dimension.</li>
 </ul>
 
 <blockquote>The story arc: an old, simple idea (Kronecker's sequence), measured by a 70-year-old quality score (Zaremba's index), studied in the high-dimensional regime that modern applications actually live in.</blockquote>
 
 <p>If you've read this far without a math background and you now have a rough mental picture of what was done and why — that was the entire goal.</p>
+
+<h2>References named in the project</h2>
+<ul>
+  <li><strong>S. K. Zaremba (1966):</strong> <a href="https://doi.org/10.1007/BF02415091">"Good lattice points, discrepancy, and numerical integration."</a> Introduced core good-lattice ideas connecting discrepancy, numerical integration, and lattice generators.</li>
+  <li><strong>S. K. Zaremba (1972):</strong> <a href="https://www.ams.org/bull/2013-50-02/S0273-0979-2013-01402-2/">"La méthode des bons treillis pour le calcul des intégrales multiples."</a> The classic good-lattice-method reference.</li>
+  <li><strong>J. N. Lyness and T. Sørevik (1991):</strong> <a href="https://doi.org/10.1007/BF02253429">"A search program for finding optimal integration lattices."</a> Algorithmic basis for exact lattice search.</li>
+  <li><strong>H. Niederreiter (1978):</strong> <a href="https://doi.org/10.1090/S0002-9904-1978-14532-7">"Quasi-Monte Carlo methods and pseudo-random numbers."</a> Standard survey connecting discrepancy, low-discrepancy sequences, and integration.</li>
+  <li><strong>J. Dick, F. Pillichshammer, K. Suzuki, M. Ullrich, and T. Yoshiki (2018):</strong> <a href="https://doi.org/10.1007/s10231-017-0670-3">"Lattice-based integration algorithms: Kronecker sequences and rank-1 lattices."</a> Modern formulation linking Zaremba index to worst-case integration error.</li>
+  <li><strong>T. Goda (2024):</strong> <a href="https://doi.org/10.1007/s00013-024-02039-0">"One-dimensional quasi-uniform Kronecker sequences."</a> Shows quasi-uniformity of \(\{n\alpha\}\) exactly for badly approximable \(\alpha\).</li>
+</ul>
 
 <footer>Research walkthrough — Kronecker sequences and the Zaremba index.</footer>
 
