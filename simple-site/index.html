@@ -27,6 +27,9 @@
   }
   hr { border: 0; border-top: 1px solid #ddd; margin: 2.5rem 0; }
   footer { color: #888; font-size: 0.9rem; margin-top: 3rem; }
+  figure { margin: 1.8rem 0; }
+  figure img { width: 100%; height: auto; display: block; border: 1px solid #e6e6df; background: #fdfdfa; }
+  figcaption { color: #666; font-size: 0.9rem; font-style: italic; margin-top: 0.5rem; text-align: center; }
 </style>
 </head>
 <body>
@@ -44,6 +47,11 @@
 <p>This is not a toy puzzle. Whenever a computer estimates the area under a curve, simulates a physical system, prices an option, or renders light bouncing in a video game, it secretly relies on a cloud of well-spread points. The more evenly the points cover the space, the more accurate the answer. So the question becomes: <strong>what is the best recipe for spreading points?</strong></p>
 
 <p>Random points look scattered, but look closely and you'll find clumps and gaps. Random isn't even — random is <em>random</em>. A 200-year-old idea called a <strong>Kronecker sequence</strong> uses a very simple recipe to fill a square with almost eerie regularity. My research is about understanding <em>why</em>, <em>how well</em>, and <em>how to make it work in higher dimensions</em>.</p>
+
+<figure>
+  <img src="plot_scatter.png" alt="Side-by-side scatter plots: a Kronecker sequence using the golden ratio and √2 spreads 300 points evenly across the unit square, while 300 uniformly random points show visible clumps and gaps.">
+  <figcaption>The same 300 points, two ways. Left: a Kronecker sequence with α = (φ−1, √2−1). Right: uniform random. Random has visible clumps and bare patches — the Kronecker grid does not.</figcaption>
+</figure>
 
 <h2>The Three Key Ideas</h2>
 
@@ -85,6 +93,11 @@
 </ul>
 <blockquote>Inside the calculator, ρ is the smallest member of a special list called the worst vectors. For the golden ratio, that worst vector locks at (1, 1) and never changes. For e and π, it jumps around, which is exactly why ρ jumps.</blockquote>
 
+<figure>
+  <img src="plot_rho_vs_n.png" alt="Line plot of the Zaremba index ρ versus N for four irrationals: the golden ratio and √2 grow as straight clean lines, e shows breaks and a long plateau, and π stays low and flat because of its strong rational approximation 22/7.">
+  <figcaption>ρ as a function of N for four α values, computed exactly. The golden ratio and √2 climb in clean straight lines. e plateaus and jumps. π stays small for a long time — that is 22/7 doing damage.</figcaption>
+</figure>
+
 <h3>Fibonacci resonance</h3>
 <p>When N happens to be a Fibonacci number (1, 2, 3, 5, 8, 13, 21, 34, …) the golden ratio's ρ exhibits a phase transition — a sudden jump. And the worst vector at those N values? Often itself a Fibonacci number. The Fibonacci sequence haunts the golden ratio's behavior at every level. This is unique to the golden ratio and its quadratic-irrational cousins; transcendentals like π don't have this fingerprint.</p>
 
@@ -102,6 +115,11 @@
   <li><strong>The worst case is always 1.</strong> Degenerate generators (like (1, 1, 1)) always exist. You can't just pick a random generator and pray.</li>
   <li><strong>The best case grows much faster than the median</strong>, and the gap widens with N. Finding a top-quality generator becomes statistically rarer as you scale up. You have to <em>search</em>.</li>
 </ul>
+
+<figure>
+  <img src="plot_distribution.png" alt="Histogram on a log scale showing the distribution of Zaremba indices ρ across all 4D generators at N=1009. The bulk of generators sit at low ρ around the median of 6, the count drops by orders of magnitude through the 99.9th percentile at ρ=18, and only a handful of generators reach the best ρ of 26.">
+  <figcaption>Every 4D generator at N = 1009, scored. The y-axis is logarithmic — the rightmost bar (the best generators) is millions of times rarer than the median. This is why you cannot pick a generator at random and hope.</figcaption>
+</figure>
 
 <h2>Phase 5 — Pushing into 4D and 5D</h2>
 <p>Python could handle 3D up to N ≈ 1600. For higher dimensions I needed new machinery. The work to compute ρ grows roughly as N^d. At 5D and N = 1000, that's a quadrillion operations per generator times tens of thousands of generators. So I rebuilt the core in three steps:</p>
